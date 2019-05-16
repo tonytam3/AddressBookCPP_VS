@@ -18,8 +18,10 @@ void populateContact(Contacts *current, int choice);
 void displayContacts();
 void bubbleMatch(int userResponse);
 void swap();
+void saveContact();
+void loadContacts();
 string lowerCase(string input);
-  
+
 
 using namespace std;
 
@@ -43,7 +45,7 @@ void mainMenu() {
 		cout << "Welcome to AddressBook.exe.\nWhat would you like to do?" <<
 			"\n\t1) Add Contact" << "\n\t2) Update Existing Contact" << "\n\t3) Remove Contact" <<
 			"\n\t4) SortContact" << "\n\t5) Search Contact" << "\n\t6) Save AddressBook"
-			<< "\n\t7) Exit Program\n";
+			<< "\n\t7) Load Contacts"<<"\n\t8) Exit\n";
 		cin >> userResponse;
 
 		switch (userResponse) {
@@ -52,8 +54,8 @@ void mainMenu() {
 		case 3:removeContact(); break;
 		case 4:sortContacts(); break;
 		case 5:searchContact(0); break;
-		//case 6:saveAddressBook; break;
-		//case 7:uploadAddressBook(); break;
+		case 6:saveContact(); break;
+		case 7:loadContacts(); break;
 		//case 8:exit(); break;
 		default:cout << "Pick a valid option"; break;
 		}
@@ -76,7 +78,12 @@ void displayContacts() {
 	}
 }
 
-void addContact() {
+/*
+addContact() creates an new contact object and pushes the contact on top of head and sets head to new contact.
+modify function is called with setting '0', which calls the populateContact() to fill in all the necessary information one by one.
+*/
+
+void addContact() { 
 	current = new Contacts;
 	modify(0);
 	if (head == NULL) {
@@ -101,7 +108,9 @@ void addContact() {
 	cout << "====================================" << endl;
 
 }
+/*
 
+*/
 void updateContact() {
 	searchContact(1);
 }
@@ -156,7 +165,6 @@ void sortContacts() {
 	}
 		cout << "sort ended\n";
 }
-	//tail = temp;
 
 
 void bubbleMatch(int userResponse) {
@@ -203,6 +211,8 @@ void swap() {
 
 }
 
+
+
 void searchContact(int update) {
 	cout << "How would you like to perform the search?\n" << "\t1) First Name\n" << "\t2) Last Name\n" << "\t3) Phone Number\n" << "\t4) Street Name\n" << "\t5) City Name\n" << "\t6) Zip Number\n";
 	int userResponse = 0;
@@ -227,7 +237,10 @@ void searchContact(int update) {
 	}
 
 }
-
+/*
+transverseList is called by searchContact contact function. the temp and const pointer are set to head. temp pointer will follow current
+pointer while the the current pointer iterates through the list. the temp pointer in this function is used in the remove function only
+*/
 void transverseList(string name, int number, int userResponse) {
 	temp = head;
 	current = head;
@@ -246,8 +259,7 @@ void transverseList(string name, int number, int userResponse) {
 		case 5: if (current->getCity() == name && testMatch() == true) { done = true; break; }
 				else { temp = current; current = current->getNext(); break; }
 		case 6: if (current->getZip() == number && testMatch() == true) { done = true; break; }
-				else { temp = current; 
-			current = current->getNext(); break; }
+				else { temp = current; current = current->getNext(); break; }
 		}
 	}
 
@@ -257,19 +269,22 @@ void transverseList(string name, int number, int userResponse) {
 }
 
 bool testMatch() {
-	
+	bool result;
 	int select = 0;
 	while (select != 1 || select != 2) {
 		printNode(current);
 		cout << "is this your match?\n" << "\t1) YES\n" << "\t2) NO\n";
 		cin >> select;
 		switch (select) {
-		case 1:return true; break;
-		case 2:return false; break;
+		case 1:result =  true; break;
+		case 2:result = false; break;
 		default: cout << "Select a valid option\n";
 		}
 	}
+
+	return result;
 }
+
 
 
 void printNode(Contacts *current) {
@@ -315,16 +330,99 @@ void populateContact(Contacts *current,int choice) {
 
 string lowerCase(string input) {
 	string package = input;
-	for (int i = 0; i < input.length(); i++) {
+	for (unsigned int i = 0; i < input.length(); i++) {
 		package[i] = tolower(input[i]);
 	}
 	return package;
 }
 
-void saveContacts() {
-	ofstream saveFile;
+void saveContact() {
+	fstream dataFile;
+
+	dataFile.open("Contacts.txt", ios::out);
+
+	current = head;
+
+	if (dataFile.good()) {
+		while (current != NULL) {
+			dataFile << current->getFirstName() << ",";
+			dataFile << current->getLastName() << ",";
+			dataFile << current->getPhoneNumber() << ",";
+			dataFile << current->getStreet() << ",";
+			dataFile << current->getCity() << ",";
+			dataFile << current->getZip() << "\n";
+			current = current->getNext();
+		}
+
+		cout << "Save Complete\n";
+	}
+	else {
+		cout << "Couldn't open file\n";
+	}
+
+	dataFile.close();
 	
 }
+
+void loadContacts() {
+	fstream dataFile;
+
+	dataFile.open("Contacts.txt", ios::in);
+
+	string line;
+	char* temp = NULL;
+
+	char* cursor = NULL;
+
+	char* next_cursor = NULL;
+	
+	
+	
+	while (getline(dataFile, line)) {
+
+		//create a new "Contacts" node and have the current ptr assigned to that new node.
+		current = new Contacts;
+
+		//For each iteration of the while loop. Temp is making a new array with length of LINE +1
+		temp = new char[line.length() + 1]; 
+
+		/*
+		Here strcpy() is called with the "temp" as the destination and "line" as the source. With ".c_str" in "lin.c_str" line is converted into
+		a const char* type. When strcpy() is finished the return type is a non const char type.
+		*/
+		strcpy(temp, line.c_str()); 
+
+		/*
+		When using strtok_s like str_tok the char ptr must be assigned to the beginning of the line which is the first parameter. 
+		The second parameter is the desired delimiter. In this case it's "," and "\n".
+		The third variable is another pointer to keep track of the next token.
+		Supposedly strtok_s or _r is multithread safe.
+		*/
+		cursor = strtok_s(temp, ",\n", &next_cursor);
+
+		for (int i = 0; i < 6; i++) {
+			switch (i) {
+			case 0: current->setFirstName(cursor);
+			case 1: current->setLastName(cursor);
+			case 2: current->setPhoneNumber(atoi(cursor));
+			case 3: current->setStreet(cursor);
+			case 4: current->setCity(cursor);
+			case 5:current->setZip(atoi(cursor));
+			}
+		}
+
+
+
+
+		cout << line << endl;
+		
+	}
+	
+	cout << "TEST EMPTY\n";
+
+}
+
+
 
 
 int main() {
