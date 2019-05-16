@@ -388,7 +388,7 @@ void loadContacts() {
 
 		/*
 		Here strcpy() is called with the "temp" as the destination and "line" as the source. With ".c_str" in "lin.c_str" line is converted into
-		a const char* type. When strcpy() is finished the return type is a non const char type.
+		a const char* type. When strcpy() is finished, the return type is a non const char type.
 		*/
 		strcpy(temp, line.c_str()); 
 
@@ -402,13 +402,15 @@ void loadContacts() {
 
 		for (int i = 0; i < 6; i++) {
 			switch (i) {
-			case 0: current->setFirstName(cursor);
-			case 1: current->setLastName(cursor);
-			case 2: current->setPhoneNumber(atoi(cursor));
-			case 3: current->setStreet(cursor);
-			case 4: current->setCity(cursor);
-			case 5:current->setZip(atoi(cursor));
+			case 0: current->setFirstName(cursor); break;
+			case 1: current->setLastName(cursor); break;
+			case 2: current->setPhoneNumber(atoi(cursor)); break;
+			case 3: current->setStreet(cursor); break;
+			case 4: current->setCity(cursor); break;
+			case 5: current->setZip(atoi(cursor)); break;
 			}
+
+
 		}
 
 
