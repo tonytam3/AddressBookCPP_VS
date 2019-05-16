@@ -390,7 +390,7 @@ void loadContacts() {
 		Here strcpy() is called with the "temp" as the destination and "line" as the source. With ".c_str" in "lin.c_str" line is converted into
 		a const char* type. When strcpy() is finished, the return type is a non const char type.
 		*/
-		strcpy(temp, line.c_str()); 
+		strcpy_s(temp,line.length()+1, line.c_str()); 
 
 		/*
 		When using strtok_s like str_tok the char ptr must be assigned to the beginning of the line which is the first parameter. 
@@ -410,13 +410,23 @@ void loadContacts() {
 			case 5: current->setZip(atoi(cursor)); break;
 			}
 
+			cursor = strtok_s(NULL, ",\n", &next_cursor);
 
 		}
 
+		if (head == NULL) {
+			current->setNext(head);
+			head = current;
+		}
+		else {
+			current->setNext(head);
+			head = current;
+		}
+
+		printNode(current);
 
 
-
-		cout << line << endl;
+		
 		
 	}
 	
