@@ -4,6 +4,8 @@
 #include "Contacts.h"
 #include <fstream>
 
+
+
 void mainMenu();
 void addContact();
 void updateContact();
@@ -21,6 +23,7 @@ void swap();
 void saveContact();
 void loadContacts();
 string lowerCase(string input);
+void exit();
 
 
 using namespace std;
@@ -83,7 +86,7 @@ addContact() creates an new contact object and pushes the contact on top of head
 modify function is called with setting '0', which calls the populateContact() to fill in all the necessary information one by one.
 */
 
-void addContact() { 
+ void addContact() { 
 	current = new Contacts;
 	modify(0);
 	if (head == NULL) {
@@ -434,7 +437,17 @@ void loadContacts() {
 
 }
 
+void exit() {
+	current = head;
 
+	while (current != NULL) {
+		head = current->getNext();
+		delete current;
+		current = head;
+	}
+
+	exit();
+}
 
 
 int main() {
